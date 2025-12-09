@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nik Nag Presale</title>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+<style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#0a0a0a; color:#fff;}
+    header { display:flex; justify-content:space-between; align-items:center; padding:20px; background:#111;}
+    header nav a { margin:0 10px; color:#fff; text-decoration:none; font-weight:bold;}
+    .hero { text-align:center; padding:50px 20px; background:#1a1a1a;}
+    .hero h1 { font-size:2.5em; color:#ff00ff;}
+    .btn { background:#ff00ff; color:#fff; padding:10px 20px; border:none; cursor:pointer; font-weight:bold; margin-top:20px;}
+    section { padding:50px 20px; }
+    h2 { color:#ff00ff; margin-bottom:20px; text-align:center; }
+    .card { background:#222; padding:20px; border-radius:10px; width:250px; text-align:center; margin:10px auto;}
+    footer { background:#111; text-align:center; padding:20px; }
+    footer a { color:#ff00ff; margin:0 10px; text-decoration:none;}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Nik Nag</div>
+    <nav>
+        <a href="#about">About</a>
+        <a href="#tokenomics">Tokenomics</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#buy">How to Buy</a>
+        <a href="#faq">FAQ</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Get in Early on Nik Nag!</h1>
+    <p>The hottest new meme coin on Solana blockchain 🚀</p>
+    <button class="btn" id="connectWallet">Connect Wallet</button>
+    <p id="walletAddress"></p>
+</section>
+
+<section id="about">
+    <h2>About Nik Nag</h2>
+    <p>Nik Nag is a fun, community-driven meme coin designed to reward early supporters. Join the hype and be part of the next big meme revolution!</p>
+</section>
+
+<section id="tokenomics">
+    <h2>Tokenomics</h2>
+    <div class="card">
+        <h3>Total Supply</h3>
+        <p>1,000,000,000 NIK</p>
+    </div>
+    <div class="card">
+        <h3>Presale Supply</h3>
+        <p>200,000,000 NIK</p>
+    </div>
+    <div class="card">
+        <h3>Price</h3>
+        <p>1 SOL = 1,000 NIK</p>
+    </div>
+</section>
+
+<section id="roadmap">
+    <h2>Roadmap</h2>
+    <div class="card">
+        <h3>Q1 2026</h3>
+        <p>Presale & Launch</p>
+    </div>
+    <div class="card">
+        <h3>Q2 2026</h3>
+        <p>DEX Listings & Community Airdrops</p>
+    </div>
+</section>
+
+<section id="buy">
+    <h2>Buy Nik Nag</h2>
+    <p>Enter amount of SOL to spend:</p>
+    <input type="number" id="solAmount" placeholder="0.1" min="0.01" step="0.01">
+    <button class="btn" id="buyToken">Buy Token</button>
+    <p id="status"></p>
+</section>
+
+<section id="faq">
+    <h2>FAQ</h2>
+    <p><strong>Which blockchain?</strong> Solana</p>
+    <p><strong>Can I sell immediately?</strong> Yes, after listing</p>
+    <p><strong>How to claim tokens?</strong> Tokens are sent automatically to your wallet after purchase</p>
+</section>
+
+<footer>
+    <p>Follow us on: 
+        <a href="#">Twitter</a> | 
+        <a href="#">Discord</a> | 
+        <a href="#">Telegram</a>
+    </p>
+    <p>Disclaimer: Crypto investments are risky. Please invest responsibly.</p>
+</footer>
+
+<script>
+let walletAddress = null;
+
+const connectWalletButton = document.getElementById('connectWallet');
+const walletAddressDisplay = document.getElementById('walletAddress');
+const buyButton = document.getElementById('buyToken');
+const statusText = document.getElementById('status');
+
+// Connect to Phantom Wallet
+connectWalletButton.onclick = async () => {
+    if(window.solana && window.solana.isPhantom){
+        try {
+            const resp = await window.solana.connect();
+            walletAddress = resp.publicKey.toString();
+            walletAddressDisplay.innerText = "Connected: " + walletAddress;
+            connectWalletButton.style.display = "none";
+        } catch(err){
+            alert("Wallet connection failed");
+        }
+    } else {
+        alert("Phantom wallet not found! Install it first.");
+    }
+}
+
+// Buy Token Function
+buyButton.onclick = async () => {
+    if(!walletAddress){
+        alert("Connect wallet first!");
+        return;
+    }
+
+    let amount = parseFloat(document.getElementById('solAmount').value);
+    if(isNaN(amount) || amount <= 0){
+        alert("Enter a valid SOL amount");
+        return;
+    }
+
+    statusText.innerText = "Processing transaction...";
+
+    try{
+        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+        const fromPubkey = new solanaWeb3.PublicKey(5X2Eq4RdAz7b3RZeBULbPpK4SxCcXaxhxyjxnFWD6CX);
+
+        // Replace with your presale wallet address
+        const toPubkey = new solanaWeb3.PublicKey(5X2Eq4RdAz7b3RZeBULbPpK4SxCcXaxhxyjxnFWD6CX);
+
+        const transaction = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey,
+                toPubkey,
+                lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
+            })
+        );
+
+        transaction.feePayer = fromPubkey;
+        let blockhashObj = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhashObj.blockhash;
+
+        const signed = await window.solana.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+
+        statusText.innerText = `Transaction successful! Signature: ${signature}`;
+    } catch(err){
+        console.log(err);
+        statusText.innerText = "Transaction failed!";
+    }
+}
+</script>
+
+</body>
+</html>
